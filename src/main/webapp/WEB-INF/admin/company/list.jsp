@@ -103,7 +103,56 @@
 			var BASE_PATH = '${base}';
 			$(function () {
 			    initDatatable();
+			    if ('WebSocket' in window){
+			    	  console.log('Websocket supported');  
+	                  var socket = new WebSocket('ws://192.168.1.6:8080/companywebsocket');  
+	                  console.log('Connection attempted');  
+	  
+	                  socket.onopen = function(){  
+	                       console.log('Connection open!');  
+	                  };  
+	  
+	                  socket.onclose = function(){  
+	                      console.log('Disconnecting connection');  
+	                  }; 
+	  
+	                  socket.onmessage = function (evt){   
+	                        var received_msg = evt.data;  
+	                        console.log(received_msg);  
+	                        console.log('message received!');  
+	                        showMessage(received_msg);  
+	                 };  
+                } else {  
+                  console.log('Websocket not supported');  
+                }
 			});
+			
+	        
+			function showMessage(message) {
+				//alert(message);
+				if (typeof message === 'string') {
+			    	var obj = JSON.parse(message);
+			    	//获取列表所有的数据
+			    	var data = datatable.rows().data();
+			    	//循环列表
+			    	for(var i = 0 ; i < data.length ; i++){
+			    		//获取当前行的数据
+			    		var rows = datatable.rows(i).data();
+			    		if(rows[0].id == obj.id){
+			    			rows[0].address = obj.address;·
+			    			
+			    			//当前行数据更新
+			    			datatable.rows(i).data(rows[0]).draw();
+			    		}
+			    		//console.log(JSON.stringify(rows[0]));
+			    	}
+			    	/* $.each(data,function(i,n){
+			    		var rows = datatable.rows(i).data();
+			    		console.log(JSON.stringify(rows));
+			    	}); */
+					//console.log(obj.address);
+			    }
+	        }  
 		</script>
 	</body>
 </html>
